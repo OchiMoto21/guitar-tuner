@@ -1,8 +1,9 @@
 <html lang="en">
+    <link href='https://fonts.googleapis.com/css?family=Alfa Slab One' rel='stylesheet'>
     <style> 
         * { margin: 0; padding: 0;}
         body, html { 
-            background: #fff;
+            background: #4285F4;
             height:100%; 
             width:100%
         }
@@ -33,6 +34,7 @@
         -webkit-user-select: none;
         touch-action: manipulation;
         width: 100%;
+        
         }
 
         .button-31:hover,
@@ -40,14 +42,22 @@
 
         opacity: .75;
         }
-
-        .visualizer{
-        margin-left: auto;
-        margin-right: auto;
-        top: 50%;
+        .visualizer {
+            background-attachment: fixed;
         }
+        
+        .note {
+            font-family: 'Alfa Slab One';
+            display: none;
+            color: #fff;
+        }
+
     </style> 
-    <p align="center"><canvas class="visualizer"></canvas></p>
+    <p align="center" position="absolute"><canvas class="visualizer"></canvas></p>
     <p align="center"><button id="init" onclick="init()" class="button-31">Start</button></p>
+    <h1 align="center" class="note" id="note">uwo</h1>
+    
+    <p align="center" style="font-family: 'Alfa Slab One';color: #fff;">
+    Thanks to https://alexanderell.is/posts/tuner/ for Autocorrelation Algorithm tutorial<p>
     <script src="web/scripts/pitch.js"></script>
 </html>
