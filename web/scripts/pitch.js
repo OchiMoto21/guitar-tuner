@@ -1,3 +1,26 @@
+/*
+The MIT License (MIT)
+Copyright (c) 2014 Chris Wilson
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Note: autoCorrelate comes from https://github.com/cwilso/PitchDetect/pull/23
+with the above license.
+
+*/
 function init() {
 var source;
 var audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -21,6 +44,7 @@ if (!navigator?.mediaDevices?.getUserMedia) {
             visualize();
             document.getElementById("init").style.display = "none";
             document.getElementById("note").style.display = "block";
+            document.body.style.backgroundColor = "#4285F4";
         }
         
     )
@@ -90,9 +114,29 @@ function visualize() {
 
     // Thanks to PitchDetect: https://github.com/cwilso/PitchDetect/blob/master/js/pitchdetect.js
     var noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    // Frequency 
+    // Kenapa di bagi 440
+    
+    // https://pages.mtu.edu/~suits/notefreqs.html
     function noteFromPitch( frequency ) {
       var noteNum = 12 * (Math.log( frequency / 440 )/Math.log(2) );
       return Math.round( noteNum ) + 69;
+    }
+
+    var octaveString = ["1", "2", "3", "4", "5", "6", "7"];
+    const octaveRange = [15.85, 31.875, 63.575, 127.14, 254.285, 508.565, 1017.135, 2034.265, 4068.54, 8123.885]; // Lowest range for octave 0th, 1st, etc; last one is "too high"
+
+
+    function octaveFromPitch( frequency ){
+      var octaveNum = 0; // Octave number
+      if ( frequency <= octaveRange[0] ) {
+        octaveNum = -1;
+      } else {
+        while (octaveNum <= 9 && frequency >= octaveRange[octaveNum]) {
+          octaveNum += 1
+        };
+      };
+      return octaveNum;
     }
 
     var drawNote = function() {
@@ -103,9 +147,17 @@ function visualize() {
         var autoCorrelateValue = autoCorrelate(buffer, audioContext.sampleRate)
 
         // Handle rounding
-        var valueToDisplay = autoCorrelateValue;
+        var valueToDisplay = "";
+        var octaveRange = octaveFromPitch(autoCorrelateValue);
+        var noteName = noteStrings[noteFromPitch(autoCorrelateValue) % 12];
 
-        valueToDisplay = noteStrings[noteFromPitch(autoCorrelateValue) % 12];
+        if (octaveRange == -1) {
+          valueToDisplay = "Frequency too low...";
+        } else if (octaveRange == 9) {
+          valueToDisplay = "Frequency too high!!";
+        } else {
+          valueToDisplay = noteName + " " + octaveRange;
+        };
 
         if (autoCorrelateValue === -1) {
             document.getElementById('note').innerText = 'Too quiet...';
