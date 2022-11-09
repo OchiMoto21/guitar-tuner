@@ -5,7 +5,7 @@ from base64 import b64decode
 from flask import Flask,json,render_template,jsonify,Response,request,send_from_directory
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-HTMLFILE = "main.html"
+HTMLFILE = "index.html"
 app = Flask(__name__,
             static_url_path='', 
             static_folder='web/static',
