@@ -28,6 +28,27 @@ var analyser = audioContext.createAnalyser();
 analyser.minDecibels = -100;
 analyser.maxDecibels = -10;
 analyser.smoothingTimeConstant = 0.85;
+
+var canvas = document.createElement("canvas");
+
+const note = document.createElement("h1");
+note.style.fontFamily = 'Alfa Slab One';
+note.style.color = '#ff5722';
+note.style.textAlign = 'center';
+note.style.fontSize = '64px';
+note.style.position = 'absolute';
+note.style.top = '50%';
+note.style.left = '50%';
+note.style.transform = 'translate(-50%, -50%)';
+
+const credit = document.createElement("p");
+const node = document.createTextNode("Thanks to https://alexanderell.is/posts/tuner/ for Autocorrelation Algorithm tutorial");
+
+credit.appendChild(node)
+credit.style.fontFamily = 'Alfa Slab One';
+credit.style.color = '#4285f4';
+credit.style.textAlign = 'center';
+
 if (!navigator?.mediaDevices?.getUserMedia) {
     // No audio allowed
     alert('Sorry, getUserMedia is required for the app.')
@@ -37,14 +58,29 @@ if (!navigator?.mediaDevices?.getUserMedia) {
     navigator.mediaDevices.getUserMedia(constraints)
     .then(
         function(stream) {
+            const section = document.getElementById("section");
+
+            const div = document.createElement("div");
+            
+            div.appendChild(canvas);
+            div.appendChild(note);
+            
+            section.appendChild(div);
+            section.appendChild(credit);
+            
+
             // Initialize the SourceNode
             source = audioContext.createMediaStreamSource(stream);
             // Connect the source node to the analyzer
             source.connect(analyser);
             visualize();
+            document.getElementById("init").style.color = "none";
+
             document.getElementById("init").style.display = "none";
-            document.getElementById("note").style.display = "block";
-            document.body.style.backgroundColor = "#4285F4";
+            document.getElementById("credit").remove();
+            
+            // document.getElementById("note").style.display = "block";
+            // document.body.style.backgroundColor = "#4285F4";
         }
         
     )
@@ -55,11 +91,11 @@ if (!navigator?.mediaDevices?.getUserMedia) {
 }
 
 // Visualizing, copied from voice change o matic
-var canvas = document.querySelector('.visualizer');
+//var canvas = document.querySelector('.visualizer');
 var canvasContext = canvas.getContext("2d");
 
-canvas.width  = 0.8*window.innerWidth;
-canvas.height = 0.8*window.innerHeight;
+canvas.width  = 0.7*window.innerWidth;
+canvas.height = 0.5*window.innerHeight;
 
 var WIDTH;
 var HEIGHT;
@@ -78,11 +114,11 @@ function visualize() {
         var dataArray = new Uint8Array(bufferLength);
         analyser.getByteTimeDomainData(dataArray);
 
-        canvasContext.fillStyle = 'rgb(66, 133, 244)';
+        canvasContext.fillStyle = 'white';
         canvasContext.fillRect(0, 0, WIDTH, HEIGHT);
 
         canvasContext.lineWidth = 2;
-        canvasContext.strokeStyle = 'rgb(0, 0, 0)';
+        canvasContext.strokeStyle = '#ff5722';
 
         canvasContext.beginPath();
 
@@ -150,7 +186,7 @@ function visualize() {
         };
 
         if (autoCorrelateValue === -1) {
-            document.getElementById('note').innerText = 'Too quiet...';
+            note.innerText = 'Too quiet...';
             return;
         }
         
@@ -183,7 +219,7 @@ function visualize() {
             valueToDisplay += ' Hz';
         }
 
-        document.getElementById('note').innerText = valueToDisplay;
+        note.innerText = valueToDisplay;
     }
 
     var drawFrequency = function() {
