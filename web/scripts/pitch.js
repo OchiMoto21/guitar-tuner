@@ -123,19 +123,9 @@ function visualize() {
       return Math.round( noteNum ) + 69;
     }
 
-    var octaveString = ["1", "2", "3", "4", "5", "6", "7"];
-    const octaveRange = [15.85, 31.875, 63.575, 127.14, 254.285, 508.565, 1017.135, 2034.265, 4068.54, 8123.885]; // Lowest range for octave 0th, 1st, etc; last one is "too high"
-
-
     function octaveFromPitch( frequency ){
-      var octaveNum = 0; // Octave number
-      if ( frequency <= octaveRange[0] ) {
-        octaveNum = -1;
-      } else {
-        while (octaveNum <= 9 && frequency >= octaveRange[octaveNum]) {
-          octaveNum += 1
-        };
-      };
+      var freq2offset = Math.log(frequency)/Math.log(2) + 0.010315;
+      var octaveNum = Math.floor((freq2offset-4))
       return octaveNum;
     }
 
@@ -151,9 +141,9 @@ function visualize() {
         var octaveRange = octaveFromPitch(autoCorrelateValue);
         var noteName = noteStrings[noteFromPitch(autoCorrelateValue) % 12];
 
-        if (octaveRange == -1) {
+        if (octaveRange > 0) {
           valueToDisplay = "Frequency too low...";
-        } else if (octaveRange == 9) {
+        } else if (octaveRange > 8) {
           valueToDisplay = "Frequency too high!!";
         } else {
           valueToDisplay = noteName + octaveRange;

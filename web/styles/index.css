@@ -1,15 +1,59 @@
 * { margin: 0; padding: 0;}
-        body, html { 
-            background: #FF5722;
-            height:100%; 
-            width:100%;
-            -ms-overflow-style: none; /* for Internet Explorer, Edge */
-            scrollbar-width: none; /* for Firefox */
-            overflow-y: scroll; 
-        }
-        body::-webkit-scrollbar {
-            display: none; /* for Chrome, Safari, and Opera */
-        }
+body, html { 
+    background: #FF5722;
+    height:100%; 
+    width:100%;
+    -ms-overflow-style: none; /* for Internet Explorer, Edge */
+    scrollbar-width: none; /* for Firefox */
+    overflow-y: scroll; 
+}
+
+body::-webkit-scrollbar {
+    display: none; /* for Chrome, Safari, and Opera */
+}
+
+.button-1 {
+background-color: #FF5722;
+border-radius: 4px;
+border-style: none;
+box-sizing: border-box;
+color: #fff;
+cursor: pointer;
+display: inline-block;
+font-family: 'Alfa Slab One';
+font-style: normal;
+font-weight: 400;
+font-size: 64px;
+line-height: 150%;
+margin: 0;
+max-width: 640;
+min-height: 44px;
+min-width: 10px;
+outline: none;
+overflow: hidden;
+padding: 9px 20px 8px;
+position: relative;
+text-align: center;
+text-transform: none;
+user-select: none;
+-webkit-user-select: none;
+touch-action: manipulation;
+width: 100%;
+}
+
+.button:hover,
+.button-1:focus {
+    opacity: .75;
+}
+
+.note {
+font-family: 'Alfa Slab One';
+display: none;
+color: #fff;
+}
+        
+
+/*         
         section {
             color: white;
             border-radius: 1em;
@@ -57,11 +101,11 @@
         }
         .visualizer {
             background-attachment: fixed;
-            /* position:absolute; */
+            /* position:absolute; 
         }
 
         .note {
             font-family: 'Alfa Slab One';
             display: none;
             color: #fff;
-        }
+        } */
