@@ -156,7 +156,7 @@ function visualize() {
         } else if (octaveRange == 9) {
           valueToDisplay = "Frequency too high!!";
         } else {
-          valueToDisplay = noteName + " " + octaveRange;
+          valueToDisplay = noteName + octaveRange;
         };
 
         if (autoCorrelateValue === -1) {
