@@ -141,7 +141,7 @@ function visualize() {
         var octaveRange = octaveFromPitch(autoCorrelateValue);
         var noteName = noteStrings[noteFromPitch(autoCorrelateValue) % 12];
 
-        if (octaveRange > 0) {
+        if (octaveRange < 0) {
           valueToDisplay = "Frequency too low...";
         } else if (octaveRange > 8) {
           valueToDisplay = "Frequency too high!!";
