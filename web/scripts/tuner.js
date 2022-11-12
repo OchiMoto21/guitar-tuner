@@ -29,26 +29,6 @@ function init() {
     analyser.maxDecibels = -10;
     analyser.smoothingTimeConstant = 0.85;
   
-    var canvas = document.createElement("canvas");
-  
-    const note = document.getElementById("note");
-
-    const instruction = document.getElementById("instruction");
-
-    var canvasCondition = false;
-    if (canvasCondition) return;
-    // const section_1 = document.getElementById("canvas");
-    // const section_2 = document.getElementById("noteInstruction");
-
-    // instruction.innerText = "Press start to begin"
-    
-    // section_1.appendChild(canvas);
-    // section_2.appendChild(instruction);
-    // section_2.appendChild(note);
-
-
-    canvasCondition = true;
-
     if (!navigator?.mediaDevices?.getUserMedia) {
         // No audio allowed
         alert('Sorry, getUserMedia is required for the app.')
@@ -57,9 +37,7 @@ function init() {
         var constraints = {audio: true};
         navigator.mediaDevices.getUserMedia(constraints)
         .then(
-            function(stream) {
-                if(document.querySelector('input[name="tuning"]:checked').value === null) return;
-                
+            function(stream) {                
                 visualize();
                 
                 // Initialize the SourceNode
@@ -68,7 +46,6 @@ function init() {
                 // Connect the source node to the analyzer
                 source.connect(analyser);
                 
-                document.getElementById("init").style.color = "none";
                 document.getElementById("init").style.display = "none";
             }
             
@@ -83,6 +60,9 @@ function init() {
         });
     }
   
+    const note = document.getElementById("note");
+    const instruction = document.getElementById("instruction");
+    
     // Visualizing, copied from voice change o matic
     var canvas = document.querySelector('.visualizer');
     var canvasContext = canvas.getContext("2d");
