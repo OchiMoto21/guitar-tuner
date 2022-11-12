@@ -31,17 +31,24 @@ function init() {
   
     var canvas = document.createElement("canvas");
   
-    const note = document.createElement("h1");
-    note.style.fontFamily = 'Alfa Slab One';
-    note.style.color = '#ff5722';
-    note.style.textAlign = 'center';
-    note.style.fontSize = '64px';
+    const note = document.getElementById("note");
 
-    const instruction = document.createElement("p");
-    instruction.style.fontFamily = 'Alfa Slab One';
-    instruction.style.color = '#ff5722';
-    instruction.style.textAlign = 'center';
-  
+    const instruction = document.getElementById("instruction");
+
+    var canvasCondition = false;
+    if (canvasCondition) return;
+    // const section_1 = document.getElementById("canvas");
+    // const section_2 = document.getElementById("noteInstruction");
+
+    // instruction.innerText = "Press start to begin"
+    
+    // section_1.appendChild(canvas);
+    // section_2.appendChild(instruction);
+    // section_2.appendChild(note);
+
+
+    canvasCondition = true;
+
     if (!navigator?.mediaDevices?.getUserMedia) {
         // No audio allowed
         alert('Sorry, getUserMedia is required for the app.')
@@ -51,30 +58,18 @@ function init() {
         navigator.mediaDevices.getUserMedia(constraints)
         .then(
             function(stream) {
+                if(document.querySelector('input[name="tuning"]:checked').value === null) return;
                 
                 visualize();
-                const section = document.getElementById("canvas");
-  
-                const div = document.createElement("div");
-                const div_1 = document.createElement("div");
                 
-                div.appendChild(canvas);
-                div_1.appendChild(instruction);
-                div_1.appendChild(note);
-                instruction.innerText = "UwU"
-                
-                section.appendChild(div);
-                section.appendChild(div_1);
-
                 // Initialize the SourceNode
                 source = audioContext.createMediaStreamSource(stream);
+                
                 // Connect the source node to the analyzer
                 source.connect(analyser);
+                
                 document.getElementById("init").style.color = "none";
                 document.getElementById("init").style.display = "none";
-
-                // document.getElementById("note").style.display = "block";
-                // document.body.style.backgroundColor = "#4285F4";
             }
             
         )
@@ -89,7 +84,7 @@ function init() {
     }
   
     // Visualizing, copied from voice change o matic
-    //var canvas = document.querySelector('.visualizer');
+    var canvas = document.querySelector('.visualizer');
     var canvasContext = canvas.getContext("2d");
   
     canvas.width  = 0.3*window.innerWidth;
@@ -116,7 +111,7 @@ function init() {
             canvasContext.fillRect(0, 0, WIDTH, HEIGHT);
   
             canvasContext.lineWidth = 2;
-            canvasContext.strokeStyle = '#ff5722';
+            canvasContext.strokeStyle = '#4285f4';
   
             canvasContext.beginPath();
   
@@ -177,7 +172,7 @@ function init() {
             var tuning = parseInt(document.querySelector('input[name="tuning"]:checked').value);
   
             if (octaveRange < 0) {
-              valueToDisplay = "Too low...";
+              valueToDisplay = "Too low";
             } else if (octaveRange > 8) {
               valueToDisplay = "Too high!!";
             } else {
@@ -186,19 +181,22 @@ function init() {
               if (valueToDisplay == guitarStrings[tuning-1]){
                 note.style.color = '#14AE5C';
               } else {
-                note.style.color = '#F24822';
+                note.style.color = '#666666';
               }
             };
             
             if (valueToDisplay == guitarStrings[tuning-1]){
-                instruction.innerText = "Correct"
+              instruction.style.color = '#14AE5C';  
+              instruction.innerText = "Correct";
             } else if (autoCorrelateValue > guitarFrequency[tuning-1]){
-                instruction.innerText = "Tune down"
+              instruction.style.color = '#ff5722';  
+              instruction.innerText = "Tune down";
             } else if (autoCorrelateValue < guitarFrequency[tuning-1]){
-                instruction.innerText = "Tune up"
+              instruction.style.color = '#ff5722';  
+              instruction.innerText = "Tune up"
             }
             if (autoCorrelateValue === -1) {
-                note.innerText = 'Too quiet...';
+                note.innerText = 'Too quiet';
                 return;
             }
             
