@@ -21,6 +21,7 @@ Note: autoCorrelate comes from https://github.com/cwilso/PitchDetect/pull/23
 with the above license.
 
 */
+
 function init() {
     var source;
     var audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -37,7 +38,11 @@ function init() {
         var constraints = {audio: true};
         navigator.mediaDevices.getUserMedia(constraints)
         .then(
-            function(stream) {                
+            function(stream) {
+                if (document.querySelector('input[name="tuning"]:checked') == null) {
+                  alert('Please select a string to tune!') 
+                  return;
+                }         
                 visualize();
                 
                 // Initialize the SourceNode
@@ -219,7 +224,12 @@ function init() {
 
         drawNote();
     }
-  }
+  };
+
+  // function showForm() {
+  //   document.getElementById("noteForm").style.display="block";
+  // };
+
   // Taken from https://alexanderell.is/posts/tuner/tuner.js
   function autoCorrelate(buffer, sampleRate) {
       // Perform a quick root-mean-square to see if we have enough signal

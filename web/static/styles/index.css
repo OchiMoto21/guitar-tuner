@@ -1,3 +1,15 @@
+@font-face{
+    font-family: 'Headings';
+    src: url('Montserrat-Black.ttf');
+    font-weight: bold;}    
+
+@font-face{
+    font-family: 'Body';
+    src: url('Raleway-ExtraBold.ttf');
+    font-weight: bold;}    
+
+/* Fonts from fonts.google.com */
+
 * { margin: 0; padding: 0;}
 body, html { 
     background:white;
@@ -9,12 +21,12 @@ body, html {
 }
 
 h1 {
-    font-family: 'Alfa Slab One';
+    font-family: 'Headings';
     color: #666666;
     font-size: 64px;
 }
 p {
-    font-family: 'Alfa Slab One';
+    font-family: 'Body';
     color: #4285f4;
 }
 body::-webkit-scrollbar {
@@ -46,7 +58,7 @@ section {
     /* color: #ff5722; */
     cursor: pointer;
     display: block;
-    font-family: 'Alfa Slab One';
+    font-family: 'Headings';
     font-style: normal;
     font-weight: 400;
     font-size: 48px;
@@ -66,6 +78,7 @@ section {
     touch-action: manipulation;
     /* width: 100%; */
     width: 100%;
+    /* display: none; */
 }
 
 .button-1:hover,
@@ -81,13 +94,13 @@ section {
 }
 
 .note {
-font-family: 'Alfa Slab One';
+font-family: 'Body';
 display: none;
 color: #fff;
 }
 
 label {
-    font-family: 'Alfa Slab One';
+    font-family: 'Headings';
     color: #666666;
 
     
@@ -118,7 +131,7 @@ label {
 	color: #bdbdbdbd;
     font-size:xxx-large;
 	/* font-size: 14px; */
-	font-family: 'Alfa Slab One';
+	font-family: 'Headings';
 	transition: all 100ms linear;
 }
 
@@ -173,4 +186,8 @@ label {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+.the {
+    height: 720px;
 }
