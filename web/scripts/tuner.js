@@ -224,7 +224,12 @@ function init() {
 
         drawNote();
     }
-  }
+  };
+
+  // function showForm() {
+  //   document.getElementById("noteForm").style.display="block";
+  // };
+
   // Taken from https://alexanderell.is/posts/tuner/tuner.js
   function autoCorrelate(buffer, sampleRate) {
       // Perform a quick root-mean-square to see if we have enough signal
