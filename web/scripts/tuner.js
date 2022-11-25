@@ -23,6 +23,32 @@ with the above license.
 */
 
 function init() {
+    const stringFrequency = {
+      'E4': {
+        '0': 321,
+        '1': 323
+      },
+      'B3': {
+        '0': 243,
+        '1': 245
+      },
+      'G3' : {
+        '0': 192,
+        '1': 195
+      },
+      'D3' : {
+        '0': 142,
+        '1': 145
+      },
+      'A2' : {
+        '0': 107,
+        '1': 110
+      },
+      'E2' : {
+        '0': 81,
+        '1': 82
+      }
+    }
     var source;
     var audioContext = new (window.AudioContext || window.webkitAudioContext)();
     var analyser = audioContext.createAnalyser();
@@ -67,6 +93,7 @@ function init() {
   
     const note = document.getElementById("note");
     const instruction = document.getElementById("instruction");
+    const frequency = document.getElementById("frequency");
     
     // Visualizing, copied from voice change o matic
     var canvas = document.querySelector('.visualizer');
@@ -155,7 +182,7 @@ function init() {
             var noteName = noteStrings[noteFromPitch(autoCorrelateValue) % 12];
             
             var tuning = parseInt(document.querySelector('input[name="tuning"]:checked').value);
-  
+
             if (octaveRange < 0) {
               valueToDisplay = "Too low";
             } else if (octaveRange > 8) {
@@ -169,17 +196,25 @@ function init() {
                 note.style.color = '#666666';
               }
             };
-            
-            if (valueToDisplay == guitarStrings[tuning-1]){
+            if (stringFrequency[guitarStrings[tuning-1]]['0'] <= parseInt(autoCorrelateValue) && stringFrequency[guitarStrings[tuning-1]]['1'] >= parseInt(autoCorrelateValue)){
               instruction.style.color = '#14AE5C';  
               instruction.innerText = "Correct";
-            } else if (autoCorrelateValue > guitarFrequency[tuning-1]){
-              instruction.style.color = '#ff5722';  
-              instruction.innerText = "Tune down";
-            } else if (autoCorrelateValue < guitarFrequency[tuning-1]){
+            } else if (stringFrequency[guitarStrings[tuning-1]]['0'] > parseInt(autoCorrelateValue)){
               instruction.style.color = '#ff5722';  
               instruction.innerText = "Tune up"
+            } else {
+              instruction.style.color = '#ff5722';  
+              instruction.innerText = "Tune down";
             }
+            // if (valueToDisplay == guitarStrings[tuning-1]){
+            //   instruction.style.color = '#14AE5C';  
+            //   instruction.innerText = "Correct";
+            // } else if (autoCorrelateValue > guitarFrequency[tuning-1]){
+            //   instruction.style.color = '#ff5722';  
+            //   instruction.innerText = "Tune down";
+            // } else if (autoCorrelateValue < guitarFrequency[tuning-1]){
+            
+            // }
             if (autoCorrelateValue === -1) {
                 note.innerText = 'Too quiet';
                 return;
@@ -215,6 +250,7 @@ function init() {
             }
   
             note.innerText = valueToDisplay;
+            frequency.innerText = autoCorrelateValue.toFixed(2) + " Hz";
         }
 
         var displayValue = "sine"
