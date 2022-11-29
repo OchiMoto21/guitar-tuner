@@ -182,7 +182,6 @@ function init() {
             var noteName = noteStrings[noteFromPitch(autoCorrelateValue) % 12];
             
             var tuning = parseInt(document.querySelector('input[name="tuning"]:checked').value);
-
             if (octaveRange < 0) {
               valueToDisplay = "Too low";
             } else if (octaveRange > 8) {

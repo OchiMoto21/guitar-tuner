@@ -22,209 +22,214 @@ with the above license.
 
 */
 function init() {
-var source;
-var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-var analyser = audioContext.createAnalyser();
-analyser.minDecibels = -100;
-analyser.maxDecibels = -10;
-analyser.smoothingTimeConstant = 0.85;
-if (!navigator?.mediaDevices?.getUserMedia) {
-    // No audio allowed
-    alert('Sorry, getUserMedia is required for the app.')
-    return;
-} else {
-    var constraints = {audio: true};
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(
-        function(stream) {
-            // Initialize the SourceNode
-            source = audioContext.createMediaStreamSource(stream);
-            // Connect the source node to the analyzer
-            source.connect(analyser);
-            visualize();
-            document.getElementById("init").style.display = "none";
-            document.getElementById("note").style.display = "block";
-            document.body.style.backgroundColor = "#4285F4";
-        }
-        
-    )
-    .catch(function(err) {
-        console.log(err)
-        alert('Sorry, microphone permissions are required for the app. Feel free to read on without playing :)');
-    });
-}
+  var source;
+  var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  var analyser = audioContext.createAnalyser();
+  analyser.minDecibels = -100;
+  analyser.maxDecibels = -10;
+  analyser.smoothingTimeConstant = 0.85;
 
-// Visualizing, copied from voice change o matic
-var canvas = document.querySelector('.visualizer');
-var canvasContext = canvas.getContext("2d");
+  var canvas = document.createElement("canvas");
 
-canvas.width  = 0.8*window.innerWidth;
-canvas.height = 0.8*window.innerHeight;
+  const note = document.createElement("h1");
+  note.style.fontFamily = 'Alfa Slab One';
+  note.style.color = '#ff5722';
+  note.style.textAlign = 'center';
+  note.style.fontSize = '64px';
+  note.style.position = 'absolute';
+  note.style.top = '50%';
+  note.style.left = '50%';
+  note.style.transform = 'translate(-50%, -50%)';
 
-var WIDTH;
-var HEIGHT;
+  const credit = document.createElement("p");
+  const node = document.createTextNode("Thanks to https://alexanderell.is/posts/tuner/ for Autocorrelation Algorithm tutorial");
 
-function visualize() {
-    WIDTH = canvas.width;
-    HEIGHT = canvas.height;
+  credit.appendChild(node)
+  credit.style.fontFamily = 'Alfa Slab One';
+  credit.style.color = '#4285f4';
+  credit.style.textAlign = 'center';
 
-    var drawVisual;
-    var drawNoteVisual;
+  if (!navigator?.mediaDevices?.getUserMedia) {
+      // No audio allowed
+      alert('Sorry, getUserMedia is required for the app.')
+      return;
+  } else {
+      var constraints = {audio: true};
+      navigator.mediaDevices.getUserMedia(constraints)
+      .then(
+          function(stream) {
+              visualize();
+              const section = document.getElementById("section");
 
-    var draw = function() {
-        drawVisual = requestAnimationFrame(draw);
-        analyser.fftSize = 2048;
-        var bufferLength = analyser.fftSize;
-        var dataArray = new Uint8Array(bufferLength);
-        analyser.getByteTimeDomainData(dataArray);
+              const div = document.createElement("div");
+              
+              div.appendChild(canvas);
+              div.appendChild(note);
+              
+              section.appendChild(div);
+              section.appendChild(credit);
+              
+              document.getElementById("init").remove();
+              // Initialize the SourceNode
+              source = audioContext.createMediaStreamSource(stream);
+              // Connect the source node to the analyzer
+              source.connect(analyser);
+              document.getElementById("init").style.color = "none";
+              document.getElementById("init").style.display = "none";
+              document.getElementById("credit").remove();
+              
+              // document.getElementById("note").style.display = "block";
+              // document.body.style.backgroundColor = "#4285F4";
+          }
+          
+      )
+      .catch(function(err) {
+          console.log(err)
+          alert('Sorry, microphone permissions are required for the app. Feel free to read on without playing :)');
+      });
+  }
 
-        canvasContext.fillStyle = 'rgb(66, 133, 244)';
-        canvasContext.fillRect(0, 0, WIDTH, HEIGHT);
+  // Visualizing, copied from voice change o matic
+  //var canvas = document.querySelector('.visualizer');
+  var canvasContext = canvas.getContext("2d");
 
-        canvasContext.lineWidth = 2;
-        canvasContext.strokeStyle = 'rgb(0, 0, 0)';
+  canvas.width  = 0.7*window.innerWidth;
+  canvas.height = 0.5*window.innerHeight;
 
-        canvasContext.beginPath();
+  var WIDTH;
+  var HEIGHT;
 
-        var sliceWidth = WIDTH * 1.0 / bufferLength;
-        var x = 0;
+  function visualize() {
+      WIDTH = canvas.width;
+      HEIGHT = canvas.height;
 
-        for(var i = 0; i < bufferLength; i++) {
+      var drawVisual;
+      var drawNoteVisual;
 
-            var v = dataArray[i] / 128.0;
-            var y = v * HEIGHT/2;
+      var draw = function() {
+          drawVisual = requestAnimationFrame(draw);
+          analyser.fftSize = 2048;
+          var bufferLength = analyser.fftSize;
+          var dataArray = new Uint8Array(bufferLength);
+          analyser.getByteTimeDomainData(dataArray);
 
-            if(i === 0) {
-            canvasContext.moveTo(x, y);
-            } else {
-            canvasContext.lineTo(x, y);
-            }
+          canvasContext.fillStyle = 'white';
+          canvasContext.fillRect(0, 0, WIDTH, HEIGHT);
 
-            x += sliceWidth;
-        }
+          canvasContext.lineWidth = 2;
+          canvasContext.strokeStyle = '#ff5722';
 
-        canvasContext.lineTo(canvas.width, canvas.height/2);
-        canvasContext.stroke();
-    }
+          canvasContext.beginPath();
 
-    var previousValueToDisplay = 0;
-    var smoothingCount = 0;
-    var smoothingThreshold = 5;
-    var smoothingCountThreshold = 5;
+          var sliceWidth = WIDTH * 1.0 / bufferLength;
+          var x = 0;
 
-    // Thanks to PitchDetect: https://github.com/cwilso/PitchDetect/blob/master/js/pitchdetect.js
-    var noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-    // Frequency 
-    // Kenapa di bagi 440
-    
-    // https://pages.mtu.edu/~suits/notefreqs.html
-    function noteFromPitch( frequency ) {
-      var noteNum = 12 * (Math.log( frequency / 440 )/Math.log(2) );
-      return Math.round( noteNum ) + 69;
-    }
+          for(var i = 0; i < bufferLength; i++) {
 
-    function octaveFromPitch( frequency ){
-      var freq2offset = Math.log(frequency)/Math.log(2) + 0.010315;
-      var octaveNum = Math.floor((freq2offset-4))
-      return octaveNum;
-    }
+              var v = dataArray[i] / 128.0;
+              var y = v * HEIGHT/2;
 
-    var drawNote = function() {
-        drawNoteVisual = requestAnimationFrame(drawNote);
-        var bufferLength = analyser.fftSize;
-        var buffer = new Float32Array(bufferLength);
-        analyser.getFloatTimeDomainData(buffer);
-        var autoCorrelateValue = autoCorrelate(buffer, audioContext.sampleRate)
+              if(i === 0) {
+              canvasContext.moveTo(x, y);
+              } else {
+              canvasContext.lineTo(x, y);
+              }
 
-        // Handle rounding
-        var valueToDisplay = "";
-        var octaveRange = octaveFromPitch(autoCorrelateValue);
-        var noteName = noteStrings[noteFromPitch(autoCorrelateValue) % 12];
+              x += sliceWidth;
+          }
 
-        if (octaveRange < 0) {
-          valueToDisplay = "Frequency too low...";
-        } else if (octaveRange > 8) {
-          valueToDisplay = "Frequency too high!!";
-        } else {
-          valueToDisplay = noteName + octaveRange;
-        };
+          canvasContext.lineTo(canvas.width, canvas.height/2);
+          canvasContext.stroke();
+      }
 
-        if (autoCorrelateValue === -1) {
-            document.getElementById('note').innerText = 'Too quiet...';
-            return;
-        }
-        
-        smoothingThreshold = 10;
-        smoothingCountThreshold = 5;
-        
-        function noteIsSimilarEnough() {
-            // Check threshold for number, or just difference for notes.
-            if (typeof(valueToDisplay) == 'number') {
-            return Math.abs(valueToDisplay - previousValueToDisplay) < smoothingThreshold;
-            } else {
-            return valueToDisplay === previousValueToDisplay;
-            }
-        }
-        // Check if this value has been within the given range for n iterations
-        if (noteIsSimilarEnough()) {
-            if (smoothingCount < smoothingCountThreshold) {
-            smoothingCount++;
-            return;
-            } else {
-            previousValueToDisplay = valueToDisplay;
-            smoothingCount = 0;
-            }
-        } else {
-            previousValueToDisplay = valueToDisplay;
-            smoothingCount = 0;
-            return;
-        }
-        if (typeof(valueToDisplay) == 'number') {
-            valueToDisplay += ' Hz';
-        }
+      var previousValueToDisplay = 0;
+      var smoothingCount = 0;
+      var smoothingThreshold = 5;
+      var smoothingCountThreshold = 5;
 
-        document.getElementById('note').innerText = valueToDisplay;
-    }
+      // Thanks to PitchDetect: https://github.com/cwilso/PitchDetect/blob/master/js/pitchdetect.js
+      var noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-    var drawFrequency = function() {
-    var bufferLengthAlt = analyser.frequencyBinCount;
-    var dataArrayAlt = new Uint8Array(bufferLengthAlt);
+      // Frequency 
+      // Kenapa di bagi 440
+      
+      // https://pages.mtu.edu/~suits/notefreqs.html
+      function noteFromPitch( frequency ) {
+        var noteNum = 12 * (Math.log( frequency / 440 )/Math.log(2) );
+        return Math.round( noteNum ) + 69;
+      }
 
-    canvasContext.clearRect(0, 0, WIDTH, HEIGHT);
+      function octaveFromPitch( frequency ){
+        var freq2offset = Math.log(frequency)/Math.log(2) + 0.010315;
+        var octaveNum = Math.floor((freq2offset-4))
+        return octaveNum;
+      }
 
-    var drawAlt = function() {
-        drawVisual = requestAnimationFrame(drawAlt);
+      var drawNote = function() {
+          drawNoteVisual = requestAnimationFrame(drawNote);
+          var bufferLength = analyser.fftSize;
+          var buffer = new Float32Array(bufferLength);
+          analyser.getFloatTimeDomainData(buffer);
+          var autoCorrelateValue = autoCorrelate(buffer, audioContext.sampleRate)
 
-        analyser.getByteFrequencyData(dataArrayAlt);
+          // Handle rounding
+          var valueToDisplay = "";
+          var octaveRange = octaveFromPitch(autoCorrelateValue);
+          var noteName = noteStrings[noteFromPitch(autoCorrelateValue) % 12];
 
-        canvasContext.fillStyle = 'rgb(0, 0, 0)';
-        canvasContext.fillRect(0, 0, WIDTH, HEIGHT);
+          if (octaveRange < 0) {
+            valueToDisplay = "Frequency too low...";
+          } else if (octaveRange > 8) {
+            valueToDisplay = "Frequency too high!!";
+          } else {
+            valueToDisplay = noteName + octaveRange;
+          };
 
-        var barWidth = (WIDTH / bufferLengthAlt) * 2.5;
-        var barHeight;
-        var x = 0;
+          if (autoCorrelateValue === -1) {
+              note.innerText = 'Too quiet...';
+              return;
+          }
+          
+          smoothingThreshold = 10;
+          smoothingCountThreshold = 5;
+          
+          function noteIsSimilarEnough() {
+              // Check threshold for number, or just difference for notes.
+              if (typeof(valueToDisplay) == 'number') {
+              return Math.abs(valueToDisplay - previousValueToDisplay) < smoothingThreshold;
+              } else {
+              return valueToDisplay === previousValueToDisplay;
+              }
+          }
+          // Check if this value has been within the given range for n iterations
+          if (noteIsSimilarEnough()) {
+              if (smoothingCount < smoothingCountThreshold) {
+              smoothingCount++;
+              return;
+              } else {
+              previousValueToDisplay = valueToDisplay;
+              smoothingCount = 0;
+              }
+          } else {
+              previousValueToDisplay = valueToDisplay;
+              smoothingCount = 0;
+              return;
+          }
+          if (typeof(valueToDisplay) == 'number') {
+              valueToDisplay += ' Hz';
+          }
 
-        for(var i = 0; i < bufferLengthAlt; i++) {
-        barHeight = dataArrayAlt[i];
+          note.innerText = valueToDisplay;
+      }
 
-        canvasContext.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
-        canvasContext.fillRect(x,HEIGHT-barHeight/2,barWidth,barHeight/2);
 
-        x += barWidth + 1;
-        }
-    };
 
-    drawAlt();
-    }
-
-    var displayValue = "sine"
-    if (displayValue == 'sine') {
-    draw();
-    } else {
-    drawFrequency();
-    }
-    drawNote();
-}
+      var displayValue = "sine"
+      if (displayValue == 'sine') {
+        draw();
+      }
+      drawNote();
+  }
 }
 // Taken from https://alexanderell.is/posts/tuner/tuner.js
 function autoCorrelate(buffer, sampleRate) {
@@ -308,4 +313,4 @@ function autoCorrelate(buffer, sampleRate) {
     }
   
     return sampleRate/T0;
-  }
+}
